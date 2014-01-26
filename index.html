@@ -1,14 +1,106 @@
+<!DOCTYPE html>
 <html>
 <head>
-<script src="src/file_system.js"></script>
-<script src="src/file_system_controler.js"></script>
-<title>FileIO test</title>
+<link href='./fullcalendar-1.6.4/fullcalendar/fullcalendar.css' rel='stylesheet' />
+<link href='./fullcalendar-1.6.4/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
+<script src='./fullcalendar-1.6.4/lib/jquery.min.js'></script>
+<script src='./fullcalendar-1.6.4/lib/jquery-ui.custom.min.js'></script>
+<script src='./fullcalendar-1.6.4/fullcalendar/fullcalendar.min.js'></script>
+<script src="./src/file_system.js"></script>
+<script src="./src/file_system_controler.js"></script>
+<script>
+
+	$(document).ready(function() {
+	
+		var date = new Date();
+		var d = date.getDate();
+		var m = date.getMonth();
+		var y = date.getFullYear();
+				
+		$('#calendar').fullCalendar({
+			editable: true,
+			dayClick: function(date, allDay, jsEvent, view) {
+
+				var mode = $('input[name="mode"]:checked').val();
+				$('#calendar').fullCalendar('addEventSource', [{
+					title: mode,
+					start: date,
+					allDay: false
+				}]);
+
+
+				// change the day's background color just for fun
+				$(this).css('background-color', 'red');
+
+			},
+
+			eventClick: function(calEvent, jsEvent, view) {
+				console.log('eventClick: ' + calEvent.title);
+				$('#calendar').fullCalendar('removeEvents', calEvent._id);
+			},
+
+		});
+		
+	});
+
+	var saveEvents = function() {
+		var mem = $('#calendar').fullCalendar('clientEvents');
+		$("#text").get(0).value = "";
+		console.log(mem);
+		$.each(mem, function( index, value ) {
+			console.log(value.start + ":" + value.title);
+			$("#text").get(0).value += value.start + "," + value.title + "\n";
+		});
+		file_io_ctrl.saveFromElement('text');
+	}
+
+	var loadEvents = function() {
+		file_io_ctrl.setLoadEnd(loadCalendar);
+		file_io_ctrl.loadToElement('text');
+	};
+
+	var loadCalendar = function() {
+		console.log("loadCalendar");
+		var events = $("#text").get(0).value.split("\n");
+		$.each(events, function(id, event) {
+			detail = event.split(",");
+			$('#calendar').fullCalendar('addEventSource', [{
+				title: detail[1],
+				start: detail[0],
+				allDay: false
+			}]);
+		});
+	}
+
+</script>
+<style>
+
+	body {
+		margin-top: 40px;
+		text-align: center;
+		font-size: 14px;
+		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+		}
+
+	#calendar {
+		width: 900px;
+		margin: 0 auto;
+		}
+
+</style>
 </head>
 <body onload="file_io_ctrl.initFileIO()">
-<input type="button" id="load" value="load" onclick="file_io_ctrl.loadToElement('text')">
-<input type="button" id="save" value="save" onclick="file_io_ctrl.saveFromElement('text')">
-<BR>
+<input type="radio" name="mode" value="âpåÍ" checked><label>âpåÍ</label>
+<input type="radio" name="mode" value="ÉvÉçÉOÉâÉÄ"><label>ÉvÉçÉOÉâÉÄ</label><br>
+<input type="button" value="Save Events" onclick="saveEvents()">
+<input type="button" value="Load Events" onclick="loadEvents()">
+<br>
+
 <textarea id="text" style="width:400px; height:150px">FileSystemTest</textarea>
 <BR>
+</body>
+
+<div id='calendar'></div>
+
 </body>
 </html>
