@@ -55,8 +55,8 @@
 	}
 
 	var loadEvents = function() {
-		file_io_ctrl.setLoadEnd(loadCalendar);
-		file_io_ctrl.loadToElement('text');
+		file_io_ctrl.setLoadingCalendar(loadCalendar);
+		file_io_ctrl.startLoading('text');
 	};
 
 	var loadCalendar = function() {
